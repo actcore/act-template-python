@@ -1,0 +1,22 @@
+_min_copier_version: "9.4.0"
+_subdirectory: template
+_templates_suffix: .jinja
+_skip_if_exists:
+  - app.py
+  - "e2e/*.hurl"
+  - .gitignore
+  - act.toml
+  - "skill/*"
+
+project_name:
+  type: str
+  help: Component name (e.g. my-tool)
+
+description:
+  type: str
+  help: Component description
+
+needs_filesystem:
+  type: bool
+  default: false
+  help: Does this component need filesystem access?
