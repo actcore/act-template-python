@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 ## Project Overview
 
@@ -20,7 +20,7 @@ just test    # run e2e tests
 
 ```
 copier.yml              # Copier config (questions, _subdirectory, _skip_if_exists)
-CLAUDE.md               # This file (not copied to projects)
+AGENTS.md               # This file (not copied to projects)
 CHANGELOG.md            # Template version history (not copied)
 template/               # _subdirectory — only this gets copied to new projects
   pyproject.toml        # Python project config ({{ project_name }} placeholder)
