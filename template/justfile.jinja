@@ -1,6 +1,7 @@
 wasm := "{{ project_name }}.wasm"
 {% raw %}
 act := env("ACT", "npx @actcore/act")
+act-build := env("ACT_BUILD", "npx @actcore/act-build")
 hurl := env("HURL", "npx @orangeopensource/hurl")
 oras := env("ORAS", "oras")
 registry := env("OCI_REGISTRY", "ghcr.io/actpkg")
@@ -16,7 +17,7 @@ setup: init
 
 build:
     uv run componentize-py -d wit -w component-world componentize app -o {{wasm}}
-    npx @actcore/act-build pack {{wasm}}
+    {{act-build}} pack {{wasm}}
 
 test:
     #!/usr/bin/env bash
