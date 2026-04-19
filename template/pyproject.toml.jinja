@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "{{ description }}"
 requires-python = ">=3.14"
 dependencies = [
-    "act-sdk>=0.1.0",
+    "act-sdk>=0.1.1",
 ]
 
 [dependency-groups]
@@ -15,7 +15,14 @@ dev = [
 {% if needs_filesystem %}
 
 [tool.act.std.capabilities."wasi:filesystem"]
+
+[[tool.act.std.capabilities."wasi:filesystem".allow]]
+path = "**"
+mode = "rw"
 {% endif %}{% if needs_http %}
 
 [tool.act.std.capabilities."wasi:http"]
+
+[[tool.act.std.capabilities."wasi:http".allow]]
+host = "*"
 {% endif %}

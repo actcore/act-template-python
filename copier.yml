@@ -16,6 +16,11 @@ description:
   type: str
   help: Component description
 
+needs_http:
+  type: bool
+  default: false
+  help: Does this component need outbound HTTP/HTTPS access?
+
 needs_filesystem:
   type: bool
   default: false
