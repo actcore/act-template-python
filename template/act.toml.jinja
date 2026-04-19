@@ -1,8 +1,0 @@
-[std]
-name = "{{ project_name }}"
-version = "0.1.0"
-description = "{{ description }}"
-{% if needs_filesystem %}
-
-[std.capabilities."wasi:filesystem"]
-{% endif %}
