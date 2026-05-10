@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - uses: moonrepo/setup-rust@v1
         with:
           bins: wasm-tools, wasm-custom-section, wit-deps-cli
@@ -60,11 +60,11 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: component.wasm
-      - uses: oras-project/setup-oras@v2
       - uses: taiki-e/install-action@just
-      - run: echo ${{ secrets.GITHUB_TOKEN }} | oras login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Publish
         id: publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: just publish
       - name: Attest
         if: steps.publish.outputs.digest != ''
