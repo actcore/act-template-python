@@ -3,7 +3,10 @@ wasm := "{{ project_name }}.wasm"
 act := env("ACT", "npx @actcore/act")
 act-build := env("ACT_BUILD", "npx @actcore/act-build")
 hurl := env("HURL", "npx @orangeopensource/hurl")
-registry := env("OCI_REGISTRY", "ghcr.io/actpkg")
+# Publish under the repo owner's actpkg.dev namespace (actpkg username = GitHub
+# username). Derived from the git remote; override the whole path with OCI_REGISTRY.
+owner := `git remote get-url origin 2>/dev/null | sed -E 's#.*[:/]([^/]+)/[^/]+$#\1#' | tr 'A-Z' 'a-z'`
+registry := env("OCI_REGISTRY", "actpkg.dev/" + owner)
 port := `npx get-port-cli`
 addr := "[::1]:" + port
 baseurl := "http://" + addr
