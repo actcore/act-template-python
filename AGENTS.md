@@ -4,7 +4,7 @@
 
 **act-template-python** is a [Copier](https://copier.readthedocs.io/) template for scaffolding new ACT (Agent Component Tools) components in Python.
 
-Generated projects include: componentize-py build, WIT bindings, justfile, e2e tests (hurl), CI (GitHub Actions), pre-commit hooks (prek), and licenses. Existing components can pull template updates via `copier update`.
+Generated projects include: componentize-py build, WIT bindings, justfile, e2e tests (pytest + fastmcp, driving the component over MCP), CI (GitHub Actions), pre-commit hooks (prek), and licenses. Existing components can pull template updates via `copier update`.
 
 ## Scaffold a new component
 
@@ -30,8 +30,10 @@ template/               # _subdirectory — only this gets copied to new project
     world.wit           # WIT world definition (exports act:core/tool-provider@0.2.0)
     deps.toml           # wit-deps manifest (fetches act-core from act-spec)
   e2e/
-    info.hurl           # Smoke test: /info endpoint
-    tools.hurl          # Smoke test: /tools endpoint
+    conftest.py         # Fixtures: act_command, wasm_path, connected MCP client
+    pyproject.toml      # Suite's own dependency set (uv virtual project)
+    test_info.py        # Smoke test: packed manifest reports name + version
+    test_tools.py       # Smoke test: the component lists at least one tool
   justfile              # Recipes: init, setup, build, test, publish
   skill/SKILL.md        # Embedded agent skill
   prek.toml             # Pre-commit hooks: ruff check, ruff format
@@ -48,20 +50,20 @@ template/               # _subdirectory — only this gets copied to new project
 
 | Variable | Prompt | Used in |
 |----------|--------|---------|
-| `project_name` | "Component name (e.g. my-tool)" | pyproject.toml, justfile, e2e/info.hurl, skill/SKILL.md |
+| `project_name` | "Component name (e.g. my-tool)" | pyproject.toml, justfile, e2e/conftest.py, e2e/test_info.py, skill/SKILL.md |
 | `description` | "Component description" | pyproject.toml, README.md, skill/SKILL.md |
 | `needs_filesystem` | "Does this component need filesystem access?" | act.toml |
 
 ## Jinja2 / Runtime Variable Conflicts
 
-Files with runtime `{{ }}` variables (justfile, hurl) use `{% raw %}` blocks to prevent Jinja2 from interpreting them. Only Copier placeholders are outside raw blocks.
+Files with runtime `{{ }}` variables (justfile) use `{% raw %}` blocks to prevent Jinja2 from interpreting them. Only Copier placeholders are outside raw blocks.
 
 ## Development Patterns
 
 - **WIT deps**: managed by `wit-deps` (not git submodules). Run `just init` to fetch.
 - **Build**: `componentize-py` compiles Python to WASM component, `wasm-tools` adds metadata, `cbor2` encodes custom section.
 - **Package manager**: `uv` for dependencies and virtualenv.
-- **Testing**: hurl HTTP tests against `act run` on a random port.
+- **Testing**: pytest + fastmcp driving `act run --mcp` over stdio, so tests observe what an agent observes.
 - **CI**: `astral-sh/setup-uv` + `moonrepo/setup-rust` for toolchain + bins.
 - **Pre-commit**: `prek` (ruff check, ruff format, yaml/toml checks).
 - **Template sync**: `copier update` pulls template changes into existing components.
@@ -72,7 +74,7 @@ Files with runtime `{{ }}` variables (justfile, hurl) use `{% raw %}` blocks to 
 just init    # wit-deps: fetch WIT dependencies
 just setup   # init + prek install (dev environment)
 just build   # componentize-py + wasm-tools metadata + cbor custom section
-just test    # act run + hurl e2e tests (does NOT build, run just build first)
+just test    # pytest e2e suite over MCP (does NOT build, run just build first)
 just publish # oras push to OCI registry
 ```
 

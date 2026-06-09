@@ -35,6 +35,7 @@ jobs:
         with:
           name: component.wasm
       - uses: taiki-e/install-action@just
+      - uses: astral-sh/setup-uv@v6
       - run: just test
 
   lint:

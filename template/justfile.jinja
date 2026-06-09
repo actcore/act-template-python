@@ -2,16 +2,10 @@ wasm := "{{ project_name }}.wasm"
 {% raw %}
 act := env("ACT", "npx @actcore/act")
 act-build := env("ACT_BUILD", "npx @actcore/act-build")
-hurl := env("HURL", "npx @orangeopensource/hurl")
 # Publish under the repo owner's actpkg.dev namespace (actpkg username = GitHub
 # username). Derived from the git remote; override the whole path with OCI_REGISTRY.
 owner := `git remote get-url origin 2>/dev/null | sed -E 's#.*[:/]([^/]+)/[^/]+$#\1#' | tr 'A-Z' 'a-z'`
 registry := env("OCI_REGISTRY", "actpkg.dev/" + owner)
-# Random port for the e2e server, in a safe range: above the well-known/common
-# dev ports and below the Linux outbound ephemeral range (32768+).
-port := `shuf -i 10000-29999 -n 1`
-addr := "[::1]:" + port
-baseurl := "http://" + addr
 
 # Fetch WIT deps from the registry (ghcr.io/actcore) into wit/deps/.
 # wkg-registry.toml maps the act namespace -> actcore.dev (well-known -> ghcr.io/actcore).
@@ -25,13 +19,13 @@ build:
     uv run componentize-py -d wit -w component-world componentize app -o {{wasm}}
     {{act-build}} pack {{wasm}}
 
+# Drives the component through `act run --mcp` with a real MCP client, so the
+# tests observe what an agent observes. Deliberately no `build` dependency: CI
+# tests the artifact the build job produced. The wasm_path fixture fails with
+# an actionable message if it is missing or unpacked. Grants live in
+# e2e/conftest.py.
 test:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    {{act}} run {{wasm}} --http --listen "{{addr}}" &
-    trap "kill $!" EXIT
-    npx wait-on -t 180s {{baseurl}}/info
-    {{hurl}} --test --variable "baseurl={{baseurl}}" e2e/*.hurl
+    ACT="{{act}}" uv run --project e2e pytest e2e/ -v
 
 publish:
     #!/usr/bin/env bash

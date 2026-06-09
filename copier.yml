@@ -3,7 +3,10 @@ _subdirectory: template
 _templates_suffix: .jinja
 _skip_if_exists:
   - app.py
-  - "e2e/*.hurl"
+  # Author-owned tests: never clobbered by `copier update`. The rest of the
+  # e2e harness (conftest.py, pyproject.toml) stays template-owned so fixes
+  # to it can still propagate.
+  - "e2e/test_*.py"
   - .gitignore
   - act.toml
   - "skill/*"
