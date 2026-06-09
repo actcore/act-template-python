@@ -13,8 +13,10 @@ port := `shuf -i 10000-29999 -n 1`
 addr := "[::1]:" + port
 baseurl := "http://" + addr
 
+# Fetch WIT deps from the registry (ghcr.io/actcore) into wit/deps/.
+# wkg-registry.toml maps the act namespace -> actcore.dev (well-known -> ghcr.io/actcore).
 init:
-    wit-deps
+    WKG_CONFIG_FILE=wkg-registry.toml wkg wit fetch --type wit
 
 setup: init
     prek install
